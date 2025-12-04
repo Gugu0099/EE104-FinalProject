@@ -243,7 +243,34 @@ class HemlockPVA:
         fig2.savefig(save_path2, dpi=300, bbox_inches="tight")
         print(f"✔ Saved: {save_path2}")
         plt.close(fig2)
-    
+
+        print(f"\n{'='*80}")
+        print(f"STAGE PROPORTIONS OVER TIME (%) - {state_name if state_name else 'Analysis'}")
+        print(f"{'='*80}\n")
+
+        # Calculate proportions
+        total_pop_over_time = np.sum(mean_stages, axis=1)
+        total_pop_over_time[total_pop_over_time == 0] = 1  # Avoid division by zero
+        stage_proportions = (mean_stages / total_pop_over_time[:, np.newaxis]) * 100
+
+        # Print proportions at key time points
+        time_points = [0, 10, 25, 50, 75, 100]
+        time_points = [t for t in time_points if t < len(years)]  # Only use valid time points
+
+        print(f"{'Year':<8}", end='')
+        for i, stage in enumerate(self.stages):
+            print(f"Stage {i+1} ({stage})"[:20].ljust(20), end='')
+        print()
+        print('-' * (8 + 20 * len(self.stages)))
+
+        for t in time_points:
+            year_idx = t if t < len(years) else len(years) - 1
+            print(f"{t:<8}", end='')
+            for i in range(self.n_stages):
+                print(f"{stage_proportions[year_idx, i]:>18.2f}%  ", end='')
+            print()
+
+        print(f"\n{'='*80}\n")
         # ---------------- Plot 3: Extinction Risk ----------------
         fig3, ax3 = plt.subplots(figsize=(10, 6))
     
@@ -350,9 +377,9 @@ def run_hemlock_analysis(csv_file: str):
     # G = np.array([0.003, 0.011, 0.015, 0.010, 0.015])
     # F = np.array([0, 0.155, 0.396, 1.015, 3.042])
     # B2 x F2
-    P = np.array([0.655, 0.697, 0.700, 0.639, 0.631, 0.649])
-    G = np.array([0.003, 0.011, 0.015, 0.010, 0.015])
-    F = np.array([0, 0.464, 1.189, 3.044, 9.125])
+    # P = np.array([0.655, 0.697, 0.700, 0.639, 0.631, 0.649])
+    # G = np.array([0.003, 0.011, 0.015, 0.010, 0.015])
+    # F = np.array([0, 0.464, 1.189, 3.044, 9.125])
     # F2: Tripled
     # P = np.array([0.406, 0.432, 0.434, 0.303, 0.299, 0.307])  # Survival in same stage (6 values)
     # G = np.array([0.002, 0.006, 0.008, 0.004, 0.006])
@@ -377,10 +404,10 @@ def run_hemlock_analysis(csv_file: str):
     # P = np.array([0.406, 0.432, 0.434, 0.303, 0.299, 0.307])  # Survival in same stage (6 values)
     # G = np.array([0.002, 0.006, 0.008, 0.004, 0.006])  # Transition to next stage (5 values)
     # F = np.array([0, 0.538, 0.960, 2.427, 7.471])
-    # Biological Control
-    # P = np.array([6.55**-1, 6.97**-1, 7.00**-1, 6.39**-1, 6.31**-1, 6.49**-1])  # Survival in same stage (6 values)
-    # G = np.array([2.76**-3, 8.88**-3, 1.26**-1, 7.89**-1, 1.20**-1])  # Transition to next stage (5 values)
-    # F = np.array([0, 0.135, 0.240, 0.607, 1.868])
+    # B3: 25%
+    P = np.array([0.779, 0.829, 0.833, 0.808, 0.797, 0.819])  # Survival in same stage (6 values)
+    G = np.array([0.004, 0.011, 0.016, 0.011, 0.017])  # Transition to next stage (5 values)
+    F = np.array([0, 0.227, 0.585, 1.486, 4.533])
     # Historical case
     # P = np.array([0.903, 0.961, 0.965, 0.976, 0.963, 0.990])  # Survival in same stage (6 values)
     # G = np.array([0.004, 0.012, 0.017, 0.012, 0.018])  # Transition to next stage (5 values)
@@ -439,7 +466,7 @@ def run_hemlock_analysis(csv_file: str):
     results,
     scenario_name="Eastern Hemlock - Current Parameters",
     state_name="ALL STATE",          # <-- Big title across 4 plots
-    output_folder="B2 x F2"  # <-- Folder created automatically
+    output_folder="B3: 25%"  # <-- Folder created automatically
     )
     
     return pva, results, base_matrix
